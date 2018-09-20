@@ -1,0 +1,36 @@
+resources:
+  - statefulset.yaml
+  - service.yaml
+  - endpoints.yaml
+  - service-account.yaml
+
+commonLabels:
+  app: postgres
+
+vars:
+  - name: CLUSTER_NAME
+    objref:
+      kind: Service
+      apiVersion: v1
+      name: postgres
+    fieldref:
+      fieldpath: metadata.labels.cluster-name
+
+configMapGenerator:
+- name: postgres
+  literals:
+    - PATRONI_POSTGRESQL_DATA_DIR=/home/postgres/pgdata/pgroot/data
+    - PATRONI_SUPERUSER_USERNAME=postgres          
+    - PATRONI_REPLICATION_USERNAME=standby
+    - PATRONI_POSTGRESQL_PGPASS=/tmp/pgpass
+    - PATRONI_POSTGRESQL_LISTEN='0.0.0.0:5432'
+    - PATRONI_RESTAPI_LISTEN='0.0.0.0:8008'
+    - PATRONI_KUBERNETES_USE_ENDPOINTS='false'
+    
+secretGenerator:
+- name: postgres
+  commands:
+    PATRONI_SUPERUSER_PASSWORD: "echo -n $SUPERUSER_PASSWORD"
+    PATRONI_REPLICATION_PASSWORD: "echo -n $REPLICATION_PASSWORD"
+  type: Opaque
+    
