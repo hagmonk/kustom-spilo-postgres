@@ -19,18 +19,13 @@ vars:
 configMapGenerator:
 - name: postgres
   literals:
-    - PATRONI_POSTGRESQL_DATA_DIR=/home/postgres/pgdata/pgroot/data
-    - PATRONI_SUPERUSER_USERNAME=postgres          
-    - PATRONI_REPLICATION_USERNAME=standby
-    - PATRONI_POSTGRESQL_PGPASS=/tmp/pgpass
-    - PATRONI_POSTGRESQL_LISTEN='0.0.0.0:5432'
-    - PATRONI_RESTAPI_LISTEN='0.0.0.0:8008'
-    - PATRONI_KUBERNETES_USE_ENDPOINTS='false'
+    - BACKUP_SCHEDULE='00 01 * * *'
+    - DEBUG=true
     
 secretGenerator:
 - name: postgres
   commands:
-    PATRONI_SUPERUSER_PASSWORD: "echo -n $SUPERUSER_PASSWORD"
-    PATRONI_REPLICATION_PASSWORD: "echo -n $REPLICATION_PASSWORD"
+    PATRONI_SUPERUSER_PASSWORD: "printf $SUPERUSER_PASSWORD"
+    PATRONI_REPLICATION_PASSWORD: "printf $REPLICATION_PASSWORD"
   type: Opaque
     
